@@ -1,0 +1,7 @@
+add_filter( 'woocommerce_register_post_type_product', 'artabr_modify_product_post_type' );
+function artabr_modify_product_post_type( $args ) {
+   $args['labels']['name'] = 'Услуги';
+	 $args['labels']['singular_name'] = 'Услуга';
+	 $args['labels']['menu_name'] = 'Услуги';
+   return $args;
+}
