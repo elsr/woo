@@ -1,0 +1,390 @@
+<?php
+//Display Fields
+add_action( 'woocommerce_product_after_variable_attributes', 'variable_fields', 10, 3 );
+//JS to add fields for new variations
+add_action( 'woocommerce_product_after_variable_attributes_js', 'variable_fields_js' );
+//Save variation fields
+add_action( 'woocommerce_process_product_meta_variable', 'save_variable_fields', 10, 1 );
+/**
+ * Create new fields for variations
+ *
+*/
+function variable_fields( $loop, $variation_data, $variation ) {
+?>
+	<tr>
+		<td>
+			<?php
+			// Text Field
+			woocommerce_wp_text_input( 
+				array( 
+					'id'          => '_text_field['.$loop.']', 
+					'label'       => __( 'My Text Field', 'woocommerce' ), 
+					'placeholder' => 'http://',
+					'desc_tip'    => 'true',
+					'description' => __( 'Enter the custom value here.', 'woocommerce' ),
+					'value'       => get_post_meta( $variation->ID, '_text_field', true )
+				)
+			);
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?php
+			// Number Field
+			woocommerce_wp_text_input( 
+				array( 
+					'id'          => '_number_field['.$loop.']', 
+					'label'       => __( 'My Number Field', 'woocommerce' ), 
+					'desc_tip'    => 'true',
+					'description' => __( 'Enter the custom number here.', 'woocommerce' ),
+					'value'       => get_post_meta( $variation->ID, '_number_field', true ),
+					'custom_attributes' => array(
+									'step' 	=> 'any',
+									'min'	=> '0'
+								) 
+				)
+			);
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?php
+			// Textarea
+			woocommerce_wp_textarea_input( 
+				array( 
+					'id'          => '_textarea['.$loop.']', 
+					'label'       => __( 'My Textarea', 'woocommerce' ), 
+					'placeholder' => '', 
+					'description' => __( 'Enter the custom value here.', 'woocommerce' ),
+					'value'       => get_post_meta( $variation->ID, '_textarea', true ),
+				)
+			);
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?php
+			// Select
+			woocommerce_wp_select( 
+			array( 
+				'id'          => '_select['.$loop.']', 
+				'label'       => __( 'My Select Field', 'woocommerce' ), 
+				'description' => __( 'Choose a value.', 'woocommerce' ),
+				'value'       => get_post_meta( $variation->ID, '_select', true ),
+				'options' => array(
+					'one'   => __( 'Option 1', 'woocommerce' ),
+					'two'   => __( 'Option 2', 'woocommerce' ),
+					'three' => __( 'Option 3', 'woocommerce' )
+					)
+				)
+			);
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?php
+			// Checkbox
+			woocommerce_wp_checkbox( 
+			array( 
+				'id'            => '_checkbox['.$loop.']', 
+				'label'         => __('My Checkbox Field', 'woocommerce' ), 
+				'description'   => __( 'Check me!', 'woocommerce' ),
+				'value'         => get_post_meta( $variation->ID, '_checkbox', true ), 
+				)
+			);
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?php
+			// Hidden field
+			woocommerce_wp_hidden_input(
+			array( 
+				'id'    => '_hidden_field['.$loop.']', 
+				'value' => 'hidden_value'
+				)
+			);
+			?>
+		</td>
+	</tr>
+<?php
+}
+/**
+ * Create new fields for new variations
+ *
+*/
+function variable_fields_js() {
+?>
+	<tr>
+		<td>
+			<?php
+			// Text Field
+			woocommerce_wp_text_input( 
+				array( 
+					'id'          => '_text_field[ + loop + ]', 
+					'label'       => __( 'My Text Field', 'woocommerce' ), 
+					'placeholder' => 'http://',
+					'desc_tip'    => 'true',
+					'description' => __( 'Enter the custom value here.', 'woocommerce' ),
+					'value'       => ''
+				)
+			);
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?php
+			// Number Field
+			woocommerce_wp_text_input( 
+				array( 
+					'id'                => '_number_field[ + loop + ]', 
+					'label'             => __( 'My Number Field', 'woocommerce' ), 
+					'desc_tip'          => 'true',
+					'description'       => __( 'Enter the custom number here.', 'woocommerce' ),
+					'value'             => '',
+					'custom_attributes' => array(
+									'step' 	=> 'any',
+									'min'	=> '0'
+								) 
+				)
+			);
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?php
+			// Textarea
+			woocommerce_wp_textarea_input( 
+				array( 
+					'id'          => '_textarea[ + loop + ]', 
+					'label'       => __( 'My Textarea', 'woocommerce' ), 
+					'placeholder' => '', 
+					'description' => __( 'Enter the custom value here.', 'woocommerce' ),
+					'value'       => '',
+				)
+			);
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?php
+			// Select
+			woocommerce_wp_select( 
+			array( 
+				'id'          => '_select[ + loop + ]', 
+				'label'       => __( 'My Select Field', 'woocommerce' ), 
+				'description' => __( 'Choose a value.', 'woocommerce' ),
+				'value'       => '',
+				'options' => array(
+					'one'   => __( 'Option 1', 'woocommerce' ),
+					'two'   => __( 'Option 2', 'woocommerce' ),
+					'three' => __( 'Option 3', 'woocommerce' )
+					)
+				)
+			);
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?php
+			// Checkbox
+			woocommerce_wp_checkbox( 
+			array( 
+				'id'            => '_checkbox[ + loop + ]', 
+				'label'         => __('My Checkbox Field', 'woocommerce' ), 
+				'description'   => __( 'Check me!', 'woocommerce' ),
+				'value'         => '', 
+				)
+			);
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?php
+			// Hidden field
+			woocommerce_wp_hidden_input(
+			array( 
+				'id'    => '_hidden_field[ + loop + ]', 
+				'value' => 'hidden_value'
+				)
+			);
+			?>
+		</td>
+	</tr>
+<?php
+}
+/**
+ * Save new fields for variations
+ *
+*/
+function save_variable_fields( $post_id ) {
+	if (isset( $_POST['variable_sku'] ) ) :
+		$variable_sku          = $_POST['variable_sku'];
+		$variable_post_id      = $_POST['variable_post_id'];
+		
+		// Text Field
+		$_text_field = $_POST['_text_field'];
+		for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) :
+			$variation_id = (int) $variable_post_id[$i];
+			if ( isset( $_text_field[$i] ) ) {
+				update_post_meta( $variation_id, '_text_field', stripslashes( $_text_field[$i] ) );
+			}
+		endfor;
+		
+		// Number Field
+		$_number_field = $_POST['_number_field'];
+		for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) :
+			$variation_id = (int) $variable_post_id[$i];
+			if ( isset( $_text_field[$i] ) ) {
+				update_post_meta( $variation_id, '_number_field', stripslashes( $_number_field[$i] ) );
+			}
+		endfor;
+		
+		// Textarea
+		$_textarea = $_POST['_textarea'];
+		for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) :
+			$variation_id = (int) $variable_post_id[$i];
+			if ( isset( $_textarea[$i] ) ) {
+				update_post_meta( $variation_id, '_textarea', stripslashes( $_textarea[$i] ) );
+			}
+		endfor;
+		
+		// Select
+		$_select = $_POST['_select'];
+		for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) :
+			$variation_id = (int) $variable_post_id[$i];
+			if ( isset( $_select[$i] ) ) {
+				update_post_meta( $variation_id, '_select', stripslashes( $_select[$i] ) );
+			}
+		endfor;
+		
+		// Checkbox
+		$_checkbox = $_POST['_checkbox'];
+		for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) :
+			$variation_id = (int) $variable_post_id[$i];
+			if ( isset( $_checkbox[$i] ) ) {
+				update_post_meta( $variation_id, '_checkbox', stripslashes( $_checkbox[$i] ) );
+			}
+		endfor;
+		
+		// Hidden field
+		$_hidden_field = $_POST['_hidden_field'];
+		for ( $i = 0; $i < sizeof( $variable_sku ); $i++ ) :
+			$variation_id = (int) $variable_post_id[$i];
+			if ( isset( $_hidden_field[$i] ) ) {
+				update_post_meta( $variation_id, '_hidden_field', stripslashes( $_hidden_field[$i] ) );
+			}
+		endfor;
+		
+	endif;
+}
+ @remylenoir
+remylenoir commented on 25 Jun 2014
+Thanks for this code! 👍
+
+I'm trying to show the value on my product page but it's not working.
+
+I just kept the textarea part from your code, and put this to my variable.php template:
+
+Nothing is displayed, can you help me with this please?
+ @quadcodes
+quadcodes commented on 28 Feb 2015
+Very Helpful Code !
+
+But since WooCommerce 2.3, this code is not working. Is there any fix out there ?
+ @cannect
+cannect commented on 10 Mar 2015
+Hi,
+
+Look at my edited version here: https://gist.github.com/cannect/09fdbdd569020e2a0ff1
+Disclaimer: just written from the top off my head, compare the differences in the code and you are good to go.
+ @johncarter-
+johncarter- commented on 13 Aug 2015
+Are there any updates to this code to allow for WooCommerce v2.4 style variations?
+ @stokerbee
+stokerbee commented on 16 Dec 2015
+Any possibility of achieving an actual solution to so many users requesting functioning coding to add custom text fields to a variable product which functions in the most recent 2.4.12 WooCommerce version? Remi is a genius! The solution Remi posted in Spring 2014 was the outstanding solution thousands needed to learn, but WooCommerce has evolved and that Spring 2014 solution no longer functions. Can someone help? Provide the current coding and explain which files need to be modified? God Bless Remi.
+ @xavigort
+xavigort commented on 22 Jun 2016
+Great code!
+
+Althought I found 2 small mistakes in the edited version (Mar 10, 2015). I just used the checkbox options, so can't tell about the rest of it
+
+First in the "variable_fields" function
+
+'_checkbox['.$loop.']', 'label' => __('My Checkbox Field', 'woocommerce' ), 'description' => __( 'Check me!', 'woocommerce' ), 'value' => get_post_meta($variation->ID, '_checkbox'], true) ) ); ?>
+
+There's an error in the value. It should be:
+
+_'value' => get_post_meta($variation->ID, 'checkbox', true)
+
+Without the "]" character.
+
+And then in the "save_variable_fields" function, an "else" condition is needed to work correctly (otherwise it does not recognizes when we uncheck the field).
+
+It should look like this
+
+_if ( isset( $_checkbox[$i] ) ) {
+update_post_meta( $variation_id, '_checkbox', stripslashes( $_checkbox[$i] ) );
+}
+else
+update_post_meta( $variation_id, 'checkbox', 'no' );**
+ @jeesus
+jeesus commented on 9 May
+Has anyone already made it work with WooCommerce 3?
+ @xhannaa
+xhannaa commented on 15 Sep
+Hello.
+
+How could you modify this code so that it saves the function in the variations?
+
+/* -----------------------------------------------------------------------------------------------------------------------
+805-WOOCOMMERCE - MUESTRA UN SUFIJO PERSONALIZADO DETRAS DEL PRECIO EN EL PRODUCTO PRINCIPAL. ---OK---
+Muestra una ventana en el editor de cada producto en la sección GENERAL para poder añadir un sufijo Pej: Sin IVA, (+IVA), En liquidacion, Articulo rabajado, Por m2, Por litro, En oferta, 100g o100 Piezas por caja etc....... etc. detras del precio en el producto principal y en los productos de la parrilla de categorías. Tambien se mostrará en la columna precio en el listado de productos del administrador.
+----------------------------------------------------------------------------------------------------------------------------*/
+// MUESTRA CAMPO/VENTANA DE EDICIÓN.
+add_action( 'woocommerce_product_options_general_product_data', 'woo_anadir_sufijo', 10);
+add_action( 'woocommerce_product_after_variable_attributes', 'woo_anadir_sufijo', 10);
+function woo_anadir_sufijo() {
+global $woocommerce;
+
+// CAMPO DE EDICIÓN DE TEXTO DEL SUFIJO.
+woocommerce_wp_textarea_input(
+array(
+'class' => array('large_windows_sufijo'),
+'id' => '_sufijo',
+'label' =>__( 'Sufijo detras del precio(F)', 'woocommerce' ),
+'placeholder' => 'Pej: Sin IVA, (+IVA), En liquidación, Últimas unidades, Artículo rabajado, Por m2, Por litro, En oferta....',
+'desc_tip' => 'true',
+'description' => __( '
+
+SUFIJO PERSONALIZADO EN PRECIOSAñada aquí un texto personalizado a modo de sufijo para que se muestre detras del precio del producto principal para informar a sus clientes de alguna característica destacada sobre él o sobre cantidades incluidas etc. Pej: Sin IVA, (+IVA), En liquidación, Artículo rabajado, Por m2, Por litro, En oferta, 100g o100 Piezas por caja etc.... o una combinación de varios. Este sufijo se mostrará en los productos de la parrilla de cada categoría y en el precio de producto principal..', 'woocommerce' )));
+}
+// GUARDA EL CAMPO DEL SUFIJO EN LA DB.
+add_action( 'woocommerce_process_product_meta', 'woo_salvar_sufijo' );
+add_action( 'woocommerce_process_product_meta_variable', 'woo_salvar_sufijo' );
+
+ function woo_salvar_sufijo( $post_id ){
+ $woocommerce_sufijo = $_POST['_sufijo'];
+ if( isset( $woocommerce_sufijo ) )
+ update_post_meta( $post_id, '_sufijo', esc_attr( $woocommerce_sufijo ) ); 
+}
+// echo get_post_meta(get_the_ID(), 'wc_price_per_unit_key', true);
+// MUESTRA EL SUFIJO DETRAS DEL PRECIO EN EL PRODUCTO PRINCIPAL Y EN LOS DE LA PARRILLA
+add_filter('woocommerce_get_price_html','anade_sufijo_detras_del_precio');
+function anade_sufijo_detras_del_precio( $price ) {
+$price .= ' ' . get_post_meta(get_the_ID(), '_sufijo', true);
+return $price;
+add_action( 'woocommerce_before_calculate_totals', 'anade_sufijo_detras_del_precio' );	// Esta línea coloca el sufijo en el producto principal.
+add_action( 'woocommerce_after_shop_loop_item_title', 'anade_sufijo_detras_del_precio', 11 ); // Esta línea coloca el sufijo en los productos de la parrilla.
+}
