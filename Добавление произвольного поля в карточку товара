@@ -1,0 +1,266 @@
+http://www.remicorson.com/mastering-woocommerce-products-custom-fields/
+
+ooCommerce is without any doubt the more powerful e-commerce plugin for WordPress. And what i love with WooCommerce is that there’s an API for nearly everything. Today, i decided to show you how you can customize WooCommerce dynamically, and in particular how to add custom fields to any WooCommerce products. Here is the final result of what you’ll learn to do in this post:
+
+If you want to add custom fields to product variations, click here!
+mastering-woocommerce-product-fields
+
+As you can on the screenshot above we will see how to add custom fields to the product edition page. To do that we will be working on the functions.php file of your theme’s folder only.
+To begin we will add custom fields to the product general tab, we will see later how to add custom fields to the other tabs, and how to create your own tabs.
+
+The right hooks
+
+The first step is to hook an action to woocommerce_product_options_general_product_data. The function linked to this hook will be responsible of the new fields display. A second hook will be taken into account to save fields values: woocommerce_process_product_meta. Basically these two actions will be done using that code:
+
+// Display Fields
+add_action( 'woocommerce_product_options_general_product_data', 'woo_add_custom_general_fields' );
+
+// Save Fields
+add_action( 'woocommerce_process_product_meta', 'woo_add_custom_general_fields_save' );
+view rawgistfile1.php hosted with ❤ by GitHub
+Adding New Fields
+
+The snippet above link two custom functions to the right hooks. Now we need to create those functions. Let’s start bye the first one, woo_add_custom_general_fields(), that will create the fields. Here is how the function will look like
+
+function woo_add_custom_general_fields() {
+
+  global $woocommerce, $post;
+  
+  echo '<div class="options_group">';
+  
+  // Custom fields will be created here...
+  
+  echo '</div>';
+	
+}
+view rawgistfile1.txt hosted with ❤ by GitHub
+To create our fields we will mainly use WooCommerce builtin function like (All these functions are located in WooCommerce/Admin/WritePanels/writepanels-init.php.):
+
+woocommerce_wp_text_input()
+woocommerce_wp_textarea_input()
+woocommerce_wp_select()
+woocommerce_wp_checkbox()
+woocommerce_wp_hidden_input()
+Text Field Type
+
+To create a text field type, you will need to use that code:
+
+// Text Field
+woocommerce_wp_text_input( 
+	array( 
+		'id'          => '_text_field', 
+		'label'       => __( 'My Text Field', 'woocommerce' ), 
+		'placeholder' => 'http://',
+		'desc_tip'    => 'true',
+		'description' => __( 'Enter the custom value here.', 'woocommerce' ) 
+	)
+);
+view rawgistfile1.php hosted with ❤ by GitHub
+Please note the use of desc_tip to display those little nice bubble to the right of the field instead of displaying the default field description. This attribute works for every field type.
+
+Number Field Type
+
+To create a number field type, you will have to use that code:
+
+// Number Field
+woocommerce_wp_text_input( 
+	array( 
+		'id'                => '_number_field', 
+		'label'             => __( 'My Number Field', 'woocommerce' ), 
+		'placeholder'       => '', 
+		'description'       => __( 'Enter the custom value here.', 'woocommerce' ),
+		'type'              => 'number', 
+		'custom_attributes' => array(
+				'step' 	=> 'any',
+				'min'	=> '0'
+			) 
+	)
+);
+view rawgistfile1.txt hosted with ❤ by GitHub
+The main difference here is the type attribute set to number. You can also define custom attributes like step, and min, or even max. In the code above, step is the default one (1), and min is set to zero. Basically that means that we expect a positive value here (at least greater than zero).
+
+Textarea Field Type
+
+To create a textarea, here is the code to use:
+
+// Textarea
+woocommerce_wp_textarea_input( 
+	array( 
+		'id'          => '_textarea', 
+		'label'       => __( 'My Textarea', 'woocommerce' ), 
+		'placeholder' => '', 
+		'description' => __( 'Enter the custom value here.', 'woocommerce' ) 
+	)
+);
+view rawgistfile1.txt hosted with ❤ by GitHub
+Nothing really complex here…
+
+Dropdown Select Field Type
+
+To create a dropdown select, use the following code:
+
+// Select
+woocommerce_wp_select( 
+array( 
+	'id'      => '_select', 
+	'label'   => __( 'My Select Field', 'woocommerce' ), 
+	'options' => array(
+		'one'   => __( 'Option 1', 'woocommerce' ),
+		'two'   => __( 'Option 2', 'woocommerce' ),
+		'three' => __( 'Option 3', 'woocommerce' )
+		)
+	)
+);
+view rawgistfile1.txt hosted with ❤ by GitHub
+The options attributes defines available options within an array.
+
+Checkbox Field Type
+
+To create a checkbox, use this code below:
+
+// Checkbox
+woocommerce_wp_checkbox( 
+array( 
+	'id'            => '_checkbox', 
+	'wrapper_class' => 'show_if_simple', 
+	'label'         => __('My Checkbox Field', 'woocommerce' ), 
+	'description'   => __( 'Check me!', 'woocommerce' ) 
+	)
+);
+view rawgistfile1.php hosted with ❤ by GitHub
+Hidden Field Type
+
+You can also create hidden fields with the following code:
+
+// Hidden field
+woocommerce_wp_hidden_input(
+array( 
+	'id'    => '_hidden_field', 
+	'value' => 'hidden_value'
+	)
+);
+view rawgistfile1.txt hosted with ❤ by GitHub
+Products Select Field Type
+
+There’s a really nice way to create a customized dropdown select for WooCommerce products with that code:
+
+// Product Select
+?>
+<p class="form-field product_field_type">
+<label for="product_field_type"><?php _e( 'Product Select', 'woocommerce' ); ?></label>
+<select id="product_field_type" name="product_field_type[]" class="ajax_chosen_select_products" multiple="multiple" data-placeholder="<?php _e( 'Search for a product&hellip;', 'woocommerce' ); ?>">
+	<?php
+		$product_field_type_ids = get_post_meta( $post->ID, '_product_field_type_ids', true );
+		$product_ids = ! empty( $product_field_type_ids ) ? array_map( 'absint',  $product_field_type_ids ) : null;
+		if ( $product_ids ) {
+			foreach ( $product_ids as $product_id ) {
+				$product      = get_product( $product_id );
+				$product_name = woocommerce_get_formatted_product_name( $product );
+				echo '<option value="' . esc_attr( $product_id ) . '" selected="selected">' . esc_html( $product_name ) . '</option>';
+			}
+		}
+	?>
+</select> <img class="help_tip" data-tip='<?php _e( 'Your description here', 'woocommerce' ) ?>' src="<?php echo $woocommerce->plugin_url(); ?>/assets/images/help.png" height="16" width="16" />
+</p>
+<?php
+view rawgistfile1.php hosted with ❤ by GitHub
+Custom Field Type
+
+You can also create custom fields. In the example below, i created a “double field”. You can customize that code and use as many fields as you want that will be merged into one single array:
+
+// Custom field Type
+?>
+<p class="form-field custom_field_type">
+	<label for="custom_field_type"><?php echo __( 'Custom Field Type', 'woocommerce' ); ?></label>
+	<span class="wrap">
+		<?php $custom_field_type = get_post_meta( $post->ID, '_custom_field_type', true ); ?>	
+		<input placeholder="<?php _e( 'Field One', 'woocommerce' ); ?>" class="" type="number" name="_field_one" value="<?php echo $custom_field_type[0]; ?>" step="any" min="0" style="width: 80px;" />
+		<input placeholder="<?php _e( 'Field Two', 'woocommerce' ); ?>" type="number" name="_field_two" value="<?php echo $custom_field_type[1]; ?>" step="any" min="0" style="width: 80px;" />
+	</span>
+	<span class="description"><?php _e( 'Place your own description here!', 'woocommerce' ); ?></span>
+</p>
+<?php
+view rawgistfile1.php hosted with ❤ by GitHub
+Custom fields can be pretty much everything, just make sure that you use the form-field class to make them pretty!
+
+Saving Fields Values
+
+Now that you created your WooCommerce product fields, you need to create a function to save their values once you edit the update or publish button. As we saw earlier, we will use a function called woo_add_custom_general_fields_save() hooked to woocommerce_process_product_meta. Basically the idea behind this function is pretty simple: we check if the field is empty and if not we create a post meta using update_post_meta(). Please note that we use esc_attr() and esc_html() to secure data just a bit. Here is the code to save each field type values:
+
+function woo_add_custom_general_fields_save( $post_id ){
+	
+	// Text Field
+	$woocommerce_text_field = $_POST['_text_field'];
+	if( !empty( $woocommerce_text_field ) )
+		update_post_meta( $post_id, '_text_field', esc_attr( $woocommerce_text_field ) );
+		
+	// Number Field
+	$woocommerce_number_field = $_POST['_number_field'];
+	if( !empty( $woocommerce_number_field ) )
+		update_post_meta( $post_id, '_number_field', esc_attr( $woocommerce_number_field ) );
+		
+	// Textarea
+	$woocommerce_textarea = $_POST['_textarea'];
+	if( !empty( $woocommerce_textarea ) )
+		update_post_meta( $post_id, '_textarea', esc_html( $woocommerce_textarea ) );
+		
+	// Select
+	$woocommerce_select = $_POST['_select'];
+	if( !empty( $woocommerce_select ) )
+		update_post_meta( $post_id, '_select', esc_attr( $woocommerce_select ) );
+		
+	// Checkbox
+	$woocommerce_checkbox = isset( $_POST['_checkbox'] ) ? 'yes' : 'no';
+	update_post_meta( $post_id, '_checkbox', $woocommerce_checkbox );
+	
+	// Custom Field
+	$custom_field_type =  array( esc_attr( $_POST['_field_one'] ), esc_attr( $_POST['_field_two'] ) );
+	update_post_meta( $post_id, '_custom_field_type', $custom_field_type );
+	
+	// Hidden Field
+	$woocommerce_hidden_field = $_POST['_hidden_field'];
+	if( !empty( $woocommerce_hidden_field ) )
+		update_post_meta( $post_id, '_hidden_field', esc_attr( $woocommerce_hidden_field ) );
+		
+	// Product Field Type
+	$product_field_type =  $_POST['product_field_type'];
+	update_post_meta( $post_id, '_product_field_type_ids', $product_field_type );
+	
+}
+view rawgistfile1.php hosted with ❤ by GitHub
+Here is the result:
+
+mastering-woocommerce-custom-fields-2
+
+Retrieve Fields Values
+
+Now that we successfully created our fields and saved their values, i guess you’d like to display those values on the frontend. In this case the best method would be to work with WooCommerce custom templates. Basically a custom template allows you to override WooCommerce default files and use your own custom files instead. Here is a quick tutorial that will explain you how to create your custom templates: http://docs.woothemes.com/document/template-structure/
+
+To get those values we just need to use the popular get_post_meta() function. That’s pretty much all you need.
+
+Example:
+
+<?php
+// Display Custom Field Value
+echo get_post_meta( $post->ID, 'my-field-slug', true );
+// You can also use
+echo get_post_meta( get_the_ID(), 'my-field-slug', true );
+?>
+view rawgistfile1.php hosted with ❤ by GitHub
+Create Custom Tabs
+
+Finally here is a quick snippet to create a custom product tab:
+
+add_action( 'woocommerce_product_write_panel_tabs', 'woo_add_custom_admin_product_tab' );
+
+function woo_add_custom_admin_product_tab() {
+	?>
+	<li class="custom_tab"><a href="#custom_tab_data"><?php _e('My Custom Tab', 'woocommerce'); ?></a></li>
+	<?php
+}
+view rawgistfile1.php hosted with ❤ by GitHub
+I recommend you to style your tab using a bit of CSS (simply add a nice icon and you’re done!).
+
+One More Thing
+
+One more thing: if you want to add your fields to any other tab than the general one you simply need to modify the hook name you linked your woo_add_custom_general_fields() function to. Fo example use that hook woocommerce_product_options_shipping to add your fields to the shipping tab. You can find all the available hooks in  woocommerce/admin/post-types/writepanels/writepanel-product_data.php.
