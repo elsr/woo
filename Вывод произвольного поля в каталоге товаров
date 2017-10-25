@@ -1,0 +1,99 @@
+Н-р, добавили поле cf_short_description с содержимым для товара http://take.ms/QzDaQ .
+В functions.php своей темы добавляете код.
+
+add_action('woocommerce_after_shop_loop_item','cf_woocommerce_after_shop_loop_item');
+function cf_woocommerce_after_shop_loop_item() {
+    global $post;
+    if (get_post_meta($post->ID, 'cf_short_description', true)) 
+        echo '<span class="cf_short_description">'.get_post_meta($post->ID, 'cf_short_description', true).'</span>';
+}
+
+Нужно вывести эти же данные в карточку товара,прямо под ценой.
+add_action('woocommerce_after_shop_loop_item','cf_woocommerce_after_shop_loop_item');
+add_action('woocommerce_single_product_summary','cf_woocommerce_after_shop_loop_item',25);
+function cf_woocommerce_after_shop_loop_item() {
+    global $post;
+    if (get_post_meta($post->ID, 'cf_short_description', true))
+        echo '<span class="cf_short_description">'.get_post_meta($post->ID, 'cf_short_description', true).'</span>';
+}
+
+
+
+
+В этой статье о WooCommerce мы покажем вам как добавить произвольные поля к товару в магазине WooCommerce.
+Мы начнем с добавления произвольного поля на вкладку Общие на странице редактирования товара в WooCommerce под полем «Обычная цена», где вы сможете ввести значения и сохранить их, продолжим работу по сохранению и проверки данных, а затем вывода этих данных на странице товара уже на клиентской части вашего магазина.
+Яндекс.Директ
+
+Пресс волл за 1 день - Выгодно!
+	svetoviveska.ru/изготовим-Пресс-волл
+Баннерные конструкции для фото, задник сцены. 1,5х1,5м, 2х2м, 3х2м.
+
+Пресс волл press wall заказать
+	ddline.ru/press-wall
+Пресс волл по вашему дизайну в сжатые сроки. Сумка-чехол в комплекте.
+Адрес и телефон
+В качестве примера мы покажем как добавить поле «Рекомендованная розничная цена» (РРЦ) к товару в WooCommerce и вывести ее на сайте, и, давайте уже начнем.
+Первым делом мы определим поле на странице редактирования товара, к счастью WooCommerce позволяет это реализовать крайне просто с помощью огромного количества доступных хуков и встроенный функционал генерации HTML полей для ввода. Вставьте следующий код в файл functions.php вашей темы или в плагин для сайта WordPress для того, чтобы определить новое текстовое поле на странице редактирования товара:
+1
+add_action( 'woocommerce_product_options_pricing', 'wc_rrp_product_field' );
+2
+function wc_rrp_product_field() {
+3
+woocommerce_wp_text_input( array( 'id' => 'rrp_price', 'class' => 'wc_input_price short', 'label' => __( 'РРЦ', 'woocommerce' ) . ' (' . get_woocommerce_currency_symbol() . ')' ) );
+4
+}
+Теперь у вас есть поле на странице редактирования товара под названием РРЦ, однако если вы введете в него что-либо и сохраните товар, сами данные не будут сохранены потому как необходимо также реализовать сохранение данных при обновлении товара, а также реализовать проверку что было введено числовое значение. Для этого добавьте следующий код в файл functions.php вашей темы:
+1
+add_action( 'save_post', 'wc_rrp_save_product' );
+2
+function wc_rrp_save_product( $product_id ) {
+3
+// Если это автосохранение, то ничего не делаем, сохраняем данные только при нажатии на кнопку Обновить
+4
+if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+5
+return;
+6
+if ( isset( $_POST['rrp_price'] ) ) {
+7
+if ( is_numeric( $_POST['rrp_price'] ) )
+8
+update_post_meta( $product_id, 'rrp_price', $_POST['rrp_price'] );
+9
+} else delete_post_meta( $product_id, 'rrp_price' );
+10
+}
+Теперь, когда вы введете значение в поле РРЦ («Рекомендованная розничная цена») и обновите товар, поле должно сохраниться и отобразиться в этом же поле при повторной загрузке страницы. Последним нашим шагом будет вывод значения, сохраненного на странице товара на сайт на обозрение покупателей, и для этого добавьте следующий код в файл functions.php вашей темы:
+1
+add_action( 'woocommerce_single_product_summary', 'wc_rrp_show', 5 );
+2
+function wc_rrp_show() {
+3
+global $product;
+4
+// Ничего не предпринимаем для вариативных товаров
+5
+if ( $product->product_type <> 'variable' ) {
+6
+$rrp = get_post_meta( $product->id, 'rrp_price', true );
+7
+echo '<div class="woocommerce_msrp">';
+8
+_e( 'РРЦ : ', 'woocommerce' );
+9
+echo '<span class="woocommerce-rrp-price">' . woocommerce_price( $rrp ) . '</span>';
+10
+echo '</div>';
+11
+}
+12
+}
+13
+  
+14
+// Дополнительно: Для вывода на страницах архивов (в товарных категориях, например)
+15
+add_action( 'woocommerce_after_shop_loop_item_title', 'wc_rrp_show' );
+
+
+http://wpincode.com/proizvolnye-polya-v-woocommerce/
